@@ -2,22 +2,16 @@
 var numPages = 0;
 var arrMtus = [];
 
-
  var node=document.createElement("button");
  node.innerHTML='Get Status';
  node.addEventListener("click", function() { getState();node.disabled=true;node2.disabled=true;node.innerHTML='wait....';});
  document.getElementsByName('pagenavigation')[0].parentNode.appendChild(node);
-
 
  var node2=document.createElement("button");
  node2.innerHTML='Process all In Process';
  node2.hidden=true;
  node2.addEventListener("click", function() { processAll();node2.disabled=true;});
  document.getElementsByName('pagenavigation')[0].parentNode.appendChild(node2);
-
-
-
-
 
 function httpPost4Pages(url,callback){
 	
@@ -98,7 +92,6 @@ function httpPost_UM(mtu,callback){
 	xhr.send('chkAccountId='+mtu);
 	 
 }
-
 
 function getToProcess(responseText){
 	var elemAux = document.createElement('div');
