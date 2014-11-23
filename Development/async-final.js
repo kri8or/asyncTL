@@ -1,11 +1,13 @@
 
 var numPages = 0;
-var arrMtus = [];
+var arrayWithAllMtus = [];
+
 
  var node=document.createElement("button");
  node.innerHTML='Get Status';
  node.addEventListener("click", function() { getState();node.disabled=true;node2.disabled=true;node.innerHTML='wait....';});
  document.getElementsByName('pagenavigation')[0].parentNode.appendChild(node);
+
 
  var node2=document.createElement("button");
  node2.innerHTML='Process all In Process';
@@ -13,8 +15,8 @@ var arrMtus = [];
  node2.addEventListener("click", function() { processAll();node2.disabled=true;});
  document.getElementsByName('pagenavigation')[0].parentNode.appendChild(node2);
 
-function httpPost4Pages(url,callback){
-	
+
+ function httpPost4Pages(url,callback){
 	var xhr = new XMLHttpRequest();
 	xhr.open('POST', url, true);
 	xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
@@ -23,14 +25,15 @@ function httpPost4Pages(url,callback){
 	    //do something to response
 	    numPages=document.getElementsByName("SelectPage")[0].length-1;
 
-	  callback();
+	    callback(); 
 	     
 	};
 	xhr.send();
 }
 
+
 var itera = 0;
-function httpPost4Mtus(url,page,callback){
+function httpPostGetAllMtus(url,page,callback){
 	
 	var xhr = new XMLHttpRequest();
 	xhr.open('POST', url, true);
@@ -44,7 +47,7 @@ function httpPost4Mtus(url,page,callback){
 		
 	    	for(var i = 1;i <input.length-1; i++)  
 			{										
-			arrMtus.push(parseInt(input[i].value)); 
+			arrayWithAllMtus.push(parseInt(input[i].value)); 
 			
 			}
 
@@ -63,7 +66,7 @@ function httpPost4Mtus(url,page,callback){
 var state=[]; //MTU --- New ---- InProcess
 
 var itera2 = 0
-function httpPost_UM(mtu,callback){
+function httpPostGetMtusInprocess(mtu,callback){
 	var xhr = new XMLHttpRequest();
 	xhr.open('POST', 'https://pso-emea3/dba/async_list.cfm', true);
 
@@ -85,7 +88,7 @@ function httpPost_UM(mtu,callback){
 	    
 		
 		itera2++;
-		if (itera2==arrMtus.length){
+		if (itera2==arrayWithAllMtus.length){
 			callback();
 		}
 	};
@@ -105,12 +108,12 @@ function getToProcess(responseText){
 
 
 function getPagesAndMtus(callback){
-	httpPost4Pages("https://pso-emea3/dba/async_mngt.cfm", function(){
-	for(var i = 1;i <= numPages; i++){
-		
-			httpPost4Mtus("https://pso-emea3/dba/async_mngt.cfm",i,function(){  //this callback is executed when we get MTUs from ALL paginas  
-					console.log('completo:'+arrMtus.length);
-					arrMtus.sort(function(a,b){return a - b;});
+	httpPost4Pages("https://pso-emea3/dba/async_mngt.cfm", 
+		function(){ //this is the callback for httpPost4Pages
+			for(var i = 1;i <= numPages; i++){		
+			httpPostGetAllMtus("https://pso-emea3/dba/async_mngt.cfm",i,function(){  //this callback is executed when we get MTUs from ALL paginas  
+					console.log('completo:'+arrayWithAllMtus.length);
+					arrayWithAllMtus.sort(function(a,b){return a - b;});
 					//aqui esta completo
 					callback(); 
 			}); 
@@ -125,10 +128,7 @@ function insertAfter(newNode, referenceNode) {
 }
 
 function createTable(totais){ //create table with header...
-
-
 	//insert CSS
-
 	var l = document.createElement("link");
 	l.rel="stylesheet";
 	l.type="text/css";
@@ -233,31 +233,28 @@ function insertRow(tabela,col1,col2,col3){
 
 var mtusInProcess=[];
 function getState(){
-	 getPagesAndMtus(function(){
-	 	console.log("lenght here (getState):"+arrMtus.length);
-	 	
 
+	 getPagesAndMtus(function(){
+	 	console.log("lenght here (getState):"+arrayWithAllMtus.length);	 	
 	 	if (document.getElementById('tableRes')==null){
 	 		createTable(false);
 	 		createTable(true);	
-	 	}else{
-	
+	 	}else{	
 	 		var temp=(document.getElementById('tableRes').getElementsByTagName('tr'));
 	 		while(temp.length>0){
 	 			temp[0].remove();
-	 		}
-
-	 		
+	 		}	 		
 	 	}
 
 
 	 	var countNew=0;
 	 	var countProcess=0;
 
-	 	for(var i = 0;i < arrMtus.length; i++){
-				httpPost_UM(arrMtus[i],function(){ 		 			
+	 	for(var i = 0;i < arrayWithAllMtus.length; i++){
+				httpPostGetMtusInprocess(arrayWithAllMtus[i],
+				function(){ 		 			
 		 			for (var j = 0; j<state.length;j++){
-
+		 				
 		 				countNew += state[j].inNew;
 		 				countProcess += state[j].inProcess;
 		 				
@@ -310,7 +307,7 @@ function httpProcessInProcess(size,callback){
 
 function reload(){
 	numPages=0;
-	arrMtus=[];
+	arrayWithAllMtus=[];
 	state=[];
 	itera=0;
 	itera2=0;
