@@ -1,4 +1,4 @@
-//Buttons and reload of arrays and vars
+//Buttons and reload of arrays and variables
 
  var node=document.createElement("button");
  node.innerHTML='Get Status';
