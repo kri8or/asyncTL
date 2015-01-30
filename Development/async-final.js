@@ -2,6 +2,13 @@
 var numPages = 0;
 var arrMtus = [];
 
+var emea="";
+
+var input1 = document.createElement("INPUT");
+var form = document.createElement("span");
+input1.setAttribute("type", "text"), input1.setAttribute("id", "emea"), input1.setAttribute("value", "emea3"), form.appendChild(input1);
+ document.getElementsByName("pagenavigation")[0].parentNode.appendChild(form);
+
 
  var node=document.createElement("button");
  node.innerHTML='Get Status';
@@ -78,7 +85,7 @@ var state=[]; //MTU --- New ---- InProcess
 var itera2 = 0
 function httpPost_UM(mtu,callback){
 	var xhr = new XMLHttpRequest();
-	xhr.open('POST', 'https://pso-emea3/dba/async_list.cfm', true);
+	xhr.open('POST', "https://pso-"+emea+"/dba/async_list.cfm", true);
 
 	xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
@@ -127,10 +134,10 @@ function getToProcess(responseText){
 
 
 function getPagesAndMtus(callback){
-	httpPost4Pages("https://pso-emea3/dba/async_mngt.cfm", function(){
+	httpPost4Pages("https://pso-"+emea+"/dba/async_mngt.cfm", function(){
 	for(var i = 1;i <= numPages; i++){
 		
-			httpPost4Mtus("https://pso-emea3/dba/async_mngt.cfm",i,function(){  //this callback is executed when we get MTUs from ALL paginas  
+			httpPost4Mtus("https://pso-"+emea+"/dba/async_mngt.cfm",i,function(){  //this callback is executed when we get MTUs from ALL paginas  
 					console.log('completo:'+arrMtus.length);
 					arrMtus.sort(function(a,b){return a - b;});
 					//aqui esta completo
@@ -258,7 +265,11 @@ var mtusInProcess=[];
 var mtusInNew=[];
 
 function getState(){
-	 getPagesAndMtus(function(){
+	
+	emea = document.getElementById("emea").value;
+	
+
+	getPagesAndMtus(function(){
 	 	console.log("lenght here (getState):"+arrMtus.length);
 	 	
 
@@ -323,7 +334,7 @@ function httpProcessInProcess(size,callback){
 		if (state[i].toProcess){
 			//faz request para processar
 			var xhr = new XMLHttpRequest();
-			xhr.open('POST', "https://pso-emea3/dba/async_list.cfm", true);
+			xhr.open('POST', "https://pso-"+emea+"/dba/async_list.cfm", true);
 			xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
 			xhr.onload = function () {
@@ -347,7 +358,7 @@ function httpProcessInNew(size,callback){
 		if (state[i].toNew){
 			//faz request para processar
 			var xhr = new XMLHttpRequest();
-			xhr.open('POST', "https://pso-emea3/dba/async_list.cfm", true);
+			xhr.open('POST', "https://pso-"+emea+"/dba/async_list.cfm", true);
 			xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
 			xhr.onload = function () {
