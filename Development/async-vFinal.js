@@ -1,4 +1,6 @@
-//Buttons and reload of arrays and variables
+
+var numPages = 0;
+var arrMtus = [];
 
 var emea="";
 
@@ -32,119 +34,56 @@ var node3=document.createElement("button");
 
 
 function httpPost4Pages(url,callback){
-
-
 	
-function reload(){
-	numPages=0;
-	arrayWithAllMtus=[];
-	state=[];
-	itera=0;
-	itera2=0;
-	itera3=0;
-	count=0;
-	mtusInProcess=[];
+	var xhr = new XMLHttpRequest();
+	xhr.open('POST', url, true);
+	xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+	xhr.onload = function () {
+
+	    //do something to response
+	    numPages=document.getElementsByName("SelectPage")[0].length-1;
+
+	  callback();
+	     
+	};
+	xhr.send();
 }
 
-
-//Process In Process ---------------- START --------------------------
-
-
-var itera3=0;
-function httpProcessInProcess(size,callback){ 
-
-
-	for(var i=0;i<state.length;i++){ //para testar meter o i a comecar perto do fim....
-		if (state[i].toProcess){
-			//faz request para processar
-			var xhr = new XMLHttpRequest();
-			xhr.open('POST', "https://pso-emea3/dba/async_list.cfm", true);
-			xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-
-			xhr.onload = function () {
-	    		console.log(" was processed");
-	    		itera3++;
-
-	    		if (itera3==size){
-	    			callback();
-	    		}
-
-			};
-		xhr.send('chkAccountId='+state[i].mtu+"&nProcessLimit=-1"+"&bInProcessSubmit=Process+%27InProcess%27&lNew=&lInProcess="+state[i].toProcess.toString().replace(/,/g,"%2C"));
-		}
-	}
-}
-
-function processAll(){
-	var size = mtusInProcess.length;
-	if (size==0){
-		alert("Nothing to Process, did you run \"Get Status\"?");
-		//node2.disabled=false;
-		node.disabled=false;
-		node.innerHTML="Get Status";
-		reload();
-	}else{
-		node2.innerHTML='wait....';
+var itera = 0;
+function httpPost4Mtus(url,page,callback){
+	
+	var xhr = new XMLHttpRequest();
+	xhr.open('POST', url, true);
+	xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+	
+	xhr.onload = function () {
+	    // do something to response
+	    var elemAux = document.createElement('div'); 
+		elemAux.innerHTML = this.responseText;
+		var input = elemAux.getElementsByTagName('input'); 
 		
-		httpProcessInProcess(size,function(){
-			node2.innerHTML='COMPLETED!';
-			node2.disabled=true;
-			reload();
-			node.disabled=false;
-			node.innerHTML="Get Status";
-		});
-	}
-}
-
-
-//Process In Process ---------------- END --------------------------
-
-
-
-
-
-//Get status ---------------- START --------------------------
-
-
-// getState()
-// 	getPagesAndMtus()
-// 		httpPost4Pages()
-// 			DOM(get nr of pages from dropdown list)
-// 			CB: executa (nr de pagina vezes) httpPostGetAllMtus
-// 													preenche o arrayWithAllMtus[] com os MTUS de cada pagina
-// 													CB: faz o sort do arrayWithAllMtus
-// 		CB:
-// 			cria as tabelas
+	    	for(var i = 1;i <input.length-1; i++)  
+			{										
+			arrMtus.push(parseInt(input[i].value)); 
 			
-// 			executa (arrayWithAllMtus length vezes)  httpPostGetMtusInprocess() //por cada mtu
-// 				preenche array state[] com {mtu: ,inNew: ,inProgress:, toProcess:[candIds,candIds] }
-// 				CB: preenche array mtusInProcess[] com as mtus que têm toProcess	
+			}
 
-
-
-//6 (Both getStatus and Process related)
-
-function getToProcess(responseText){
-	var elemAux = document.createElement('div');
-	elemAux.innerHTML = responseText;
-	//elemAux.getElementsByTagName('form')[0].children[0].value 		//accountID 
-	
-	elemAux.getElementsByTagName('form')[0].children[1].value;		//lInProcess
-	elemAux.getElementsByTagName('form')[0].children[2].value;		//lNew	
-	return [elemAux.getElementsByTagName('form')[0].children[1].value,elemAux.getElementsByTagName('form')[0].children[2].value];
+	  itera++;
+	     if (itera==numPages){
+	    	callback();
+	    }
+		
+	};
+	xhr.send('Page='+page);
 }
 
-//5 
 
 // ------------------------
 //3- get STATE
 
 var state=[]; //MTU --- New ---- InProcess
-
-
-var state=[]; //MTU --- New ---- InProcess
 var itera2 = 0
-function httpPostGetMtusInProcess(mtu,callback){
+function httpPost_UM(mtu,callback){
 	var xhr = new XMLHttpRequest();
 	xhr.open('POST', "https://pso-"+emea+"/dba/async_list.cfm", true);
 
@@ -172,7 +111,7 @@ function httpPostGetMtusInProcess(mtu,callback){
 	    }
 		
 		itera2++;
-		if (itera2==arrayWithAllMtus.length){
+		if (itera2==arrMtus.length){
 			callback();
 		}
 	};
@@ -191,143 +130,34 @@ function getToProcess(responseText){
 	
 	return [elemAux.getElementsByTagName('form')[0].children[1].value,  //lInProcess
 			elemAux.getElementsByTagName('form')[0].children[2].value]; //lNew
-
-//4
-
-var arrayWithAllMtus = [];
-
-
-var itera = 0;
-function httpPostGetAllMtus(url,page,callback){
-	
-	var xhr = new XMLHttpRequest();
-	xhr.open('POST', url, true);
-	xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-	
-	xhr.onload = function () {
-	    // do something to response
-	    var elemAux = document.createElement('div'); 
-		elemAux.innerHTML = this.responseText;
-		var input = elemAux.getElementsByTagName('input'); 
-		
-	    	for(var i = 1;i <input.length-1; i++)  
-			{										
-			arrayWithAllMtus.push(parseInt(input[i].value)); 
-			
-			}
-
-	  itera++;
-	     if (itera==numPages){
-	    	callback();
-	    }
-		
-	};
-	xhr.send('Page='+page);
-
 }
 
-
-//3
-
-function httpPost4Pages(url,callback){
-	var xhr = new XMLHttpRequest();
-	xhr.open('POST', url, true);
-	xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-	xhr.onload = function () {
-
-	    //do something to response
-	    numPages=document.getElementsByName("SelectPage")[0].length-1;
-
-	    callback(); 
-	     
-	};
-	xhr.send();
-}
-
-
-//2 
-var numPages = 0;
 
 function getPagesAndMtus(callback){
-<<<<<<< HEAD:Development/async-final.js
 	httpPost4Pages("https://pso-"+emea+"/dba/async_mngt.cfm", function(){
 	for(var i = 1;i <= numPages; i++){
 		
 			httpPost4Mtus("https://pso-"+emea+"/dba/async_mngt.cfm",i,function(){  //this callback is executed when we get MTUs from ALL paginas  
 					console.log('completo:'+arrMtus.length);
 					arrMtus.sort(function(a,b){return a - b;});
-=======
-	httpPost4Pages("https://pso-emea3/dba/async_mngt.cfm", 
-		function(){ //this is the callback for httpPost4Pages
-			for(var i = 1;i <= numPages; i++){		
-			httpPostGetAllMtus("https://pso-emea3/dba/async_mngt.cfm",i,function(){  //this callback is executed when we get MTUs from ALL paginas  
-					console.log('completo:'+arrayWithAllMtus.length);
-					arrayWithAllMtus.sort(function(a,b){return a - b;});
->>>>>>> origin/master:Development/async-vFinal.js
 					//aqui esta completo
 					callback(); 
 			}); 
 	} 
 	});		
-} 
+}  
 
 
 
-//1  get STATE 
-
-var mtusInProcess=[];
-
-function getState(){
-
-	 getPagesAndMtus(function(){
-	 	console.log("lenght here (getState):"+arrayWithAllMtus.length);	 	
-	 	if (document.getElementById('tableRes')==null){
-	 		createTable(false);
-	 		createTable(true);	
-	 	}else{	
-	 		var temp=(document.getElementById('tableRes').getElementsByTagName('tr'));
-	 		while(temp.length>0){
-	 			temp[0].remove();
-	 		}	 		
-	 	}
-
-
-	 	var countNew=0;
-	 	var countProcess=0;
-
-	 	for(var i = 0;i < arrayWithAllMtus.length; i++){
-				httpPostGetMtusInProcess(arrayWithAllMtus[i],
-				function(){ 		 			
-		 			for (var j = 0; j<state.length;j++){
-		 				
-		 				countNew += state[j].inNew;
-		 				countProcess += state[j].inProcess;
-		 				
-		 				if (state[j].inProcess>0){
-		 					mtusInProcess.push(state[j].mtu);
-		 				}
-
-		 				insertRow('tableRes',state[j].mtu,state[j].inNew,state[j].inProcess);
-		 			}
-
-		 			insertRow('tableTots',state.length,countNew,countProcess);
-		 			node2.disabled=false;
-		 			node.disabled=true;
-		 			node.innerHTML='Done!';
-		 			node2.hidden=false;
-		 			node2.innerHTML='Process all In Process'
-
-				});
-		}
-	 });
+function insertAfter(newNode, referenceNode) {
+    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
 }
 
-
-//Create Tables ---------------- START --------------------------
-
-
 function createTable(totais){ //create table with header...
+
+
 	//insert CSS
+
 	var l = document.createElement("link");
 	l.rel="stylesheet";
 	l.type="text/css";
@@ -612,14 +442,5 @@ function processAllNew(){ // process in process
 
 
  
-
-
-
-
-function insertAfter(newNode, referenceNode) {
-    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
-}
-
-//Create Tables ----------------- END -------------------------
 
 
