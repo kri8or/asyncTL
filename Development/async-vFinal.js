@@ -12,7 +12,6 @@
  node2.hidden=true;
  node2.addEventListener("click", function() { processAll();node2.disabled=true;});
  document.getElementsByName('pagenavigation')[0].parentNode.appendChild(node2);
-<<<<<<< HEAD:Development/async-final.js
 
 
 
@@ -26,8 +25,8 @@ var node3=document.createElement("button");
 
 
 function httpPost4Pages(url,callback){
-=======
->>>>>>> origin/master:Development/async-vFinal.js
+
+
 	
 function reload(){
 	numPages=0;
@@ -130,12 +129,11 @@ function getToProcess(responseText){
 
 //5 
 
-<<<<<<< HEAD:Development/async-final.js
 // ------------------------
 //3- get STATE
-=======
+
 var state=[]; //MTU --- New ---- InProcess
->>>>>>> origin/master:Development/async-vFinal.js
+
 
 var state=[]; //MTU --- New ---- InProcess
 var itera2 = 0
@@ -176,7 +174,6 @@ function httpPostGetMtusInProcess(mtu,callback){
 }
 
 
-<<<<<<< HEAD:Development/async-final.js
 
 
 
@@ -187,7 +184,7 @@ function getToProcess(responseText){
 	
 	return [elemAux.getElementsByTagName('form')[0].children[1].value,  //lInProcess
 			elemAux.getElementsByTagName('form')[0].children[2].value]; //lNew
-=======
+
 //4
 
 var arrayWithAllMtus = [];
@@ -219,7 +216,7 @@ function httpPostGetAllMtus(url,page,callback){
 		
 	};
 	xhr.send('Page='+page);
->>>>>>> origin/master:Development/async-vFinal.js
+
 }
 
 
@@ -414,7 +411,6 @@ function insertRow(tabela,col1,col2,col3){
     count++;
 }
 
-<<<<<<< HEAD:Development/async-final.js
 	
 // get STATE 
 
@@ -597,7 +593,7 @@ function processAllNew(){ // process in process
 
  
 
-=======
+
 
 
 function insertAfter(newNode, referenceNode) {
@@ -605,5 +601,5 @@ function insertAfter(newNode, referenceNode) {
 }
 
 //Create Tables ----------------- END -------------------------
->>>>>>> origin/master:Development/async-vFinal.js
+
 
